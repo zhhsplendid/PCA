@@ -1,0 +1,22 @@
+function [ outImages, outLabels ] = pickData(images, labels, num)
+% Input:
+%   original data of images and labels from course website
+%   how many data you want
+% Output:
+%   
+
+    FIRST = 1;
+    RANDOM = 2;
+    
+    
+    method = FIRST;
+    if method == ALL
+        outImages = images;
+        outLabels = labels;
+    elseif method == FIRST
+        
+    elseif method == RANDOM
+    end
+
+end
+

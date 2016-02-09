@@ -1,0 +1,25 @@
+function [ accuracy ] = test(trainImages, trainLabels, testImages, ...
+    testLabels, mean, eigenVectors, numEigen)
+    
+    
+    subMeanTest = testImage - repmat(mean, 1, size(testImages, 2));
+    subMeanTrain = trainImage - repmat(mean, 1, size(trainImages, 2));
+    % sizes of train and test are image dimension * number of images
+    
+    useEgienV = eigenVectors(:, 1:numEigen);
+    % size of eigenVectors is image dimension * number of used eigen vectors
+    
+    projectTest = subMeanTest' * useEigenV;
+    projectTrain = subMeanTrain' * useEigenV;
+    
+    [numTest, projDim] = size(projectTest);
+    [numTrain, projDim] = size(projectTrain);
+    for i = 1: numTest
+        test = projectTest(i,:); % i-th image
+        
+        distances = (repmat(test, numTrain, 1) - projectTrain) .^ 2;
+    end
+    
+    % TODO: add image show of training or test examples.
+end
+
