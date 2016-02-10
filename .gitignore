@@ -1,1 +1,13 @@
 MNIST/
+src/out/
+*.mat
+*.asv
+texDoc/report.tex.bak
+*.gz
+texDoc/report.aux
+*.bbl
+texDoc/report.blg
+*.jpg
+texDoc/table.docx
+texDoc/report.log
+texDoc/table.xlsx
