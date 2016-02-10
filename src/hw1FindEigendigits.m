@@ -11,7 +11,8 @@ function [m, V] = hw1FindEigendigits( A )
     [x, k] = size(A);
     m = sum(A, 2) / k;
     afterSubMean = A - repmat(m, 1, k);
-    C = A'*A; %size k * k
+    %C = A'*A; %size k * k
+    C = afterSubMean' * afterSubMean;
     
     [eigenVectors, eigenValues] = eig(C); 
     

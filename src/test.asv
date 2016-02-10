@@ -1,12 +1,14 @@
 function [ accuracy ] = test(trainImages, trainLabels, testImages, ...
     testLabels, mean, eigenVectors, numEigen)
     
+    trainMatrix = imageFeature(trainImages);
+    testMatrix = imageFeature(testImages);
     
-    subMeanTest = testImage - repmat(mean, 1, size(testImages, 2));
-    subMeanTrain = trainImage - repmat(mean, 1, size(trainImages, 2));
+    subMeanTest = testMatrix - repmat(mean, 1, size(testMatrix, 2));
+    subMeanTrain = trainMatrix - repmat(mean, 1, size(trainMatrix, 2));
     % sizes of train and test are image dimension * number of images
     
-    useEgienV = eigenVectors(:, 1:numEigen);
+    useEigenV = eigenVectors(:, 1:numEigen);
     % size of eigenVectors is image dimension * number of used eigen vectors
     
     projectTest = subMeanTest' * useEigenV;
@@ -14,12 +16,35 @@ function [ accuracy ] = test(trainImages, trainLabels, testImages, ...
     
     [numTest, projDim] = size(projectTest);
     [numTrain, projDim] = size(projectTrain);
+    correctPred = 0;
     for i = 1: numTest
         test = projectTest(i,:); % i-th image
         
-        distances = (repmat(test, numTrain, 1) - projectTrain) .^ 2;
+        % compute Euclidean distance to all train images.
+        distances = sum((repmat(test, numTrain, 1) - projectTrain) .^ 2, 2);
+        % size of distances is number of tainImages * 1;
+        [minValue, minPos] = min(distances);
+        
+        prediction = trainLabels(minPos);
+        groundTruth = testLabels(i);
+        
+        if prediction == groundTruth
+            correctPred = correctPred + 1;
+        end
     end
+    accuracy = correctPred / numTest;
     
-    % TODO: add image show of training or test examples.
+    % print test images and PCA of images to files 
+    NUMBER_TO_PRINT = 20;
+    OUT_DIR = 'out/';
+    FILE_PREFIX = [num2str(numTrain), '_', num2str(numEigen), '_'];
+    reconstructTest = (projectTest / useEigenV)' + repmat(mean, 1, size(testMatrix, 2));
+    reconstructTest(reconstructTest > 255) = 255;
+    reconstructTest(reconstructTest < 0) = 
+    reconstructImages = uint8(reshape(reconstructTest, size(testImages)));
+    for i = 1: NUMBER_TO_PRINT
+        imwrite(testImages(:,:,:,i), [OUT_DIR, FILE_PREFIX, 'raw_', num2str(i), '.jpg']);
+        imwrite(reconstructImages(:,:,:,i), [OUT_DIR, FILE_PREFIX, 're_', num2str(i), '.jpg']);
+    end
 end
 

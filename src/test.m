@@ -1,9 +1,13 @@
 function [ accuracy ] = test(trainImages, trainLabels, testImages, ...
     testLabels, mean, eigenVectors, numEigen)
+% This function test accuracy and write original images and reconstruct
+% images into file.
     
+    trainMatrix = imageFeature(trainImages);
+    testMatrix = imageFeature(testImages);
     
-    subMeanTest = testImages - repmat(mean, 1, size(testImages, 2));
-    subMeanTrain = trainImages - repmat(mean, 1, size(trainImages, 2));
+    subMeanTest = testMatrix - repmat(mean, 1, size(testMatrix, 2));
+    subMeanTrain = trainMatrix - repmat(mean, 1, size(trainMatrix, 2));
     % sizes of train and test are image dimension * number of images
     
     useEigenV = eigenVectors(:, 1:numEigen);
@@ -31,6 +35,21 @@ function [ accuracy ] = test(trainImages, trainLabels, testImages, ...
         end
     end
     accuracy = correctPred / numTest;
-    % TODO: add image show of training or test examples.
+    
+    % print test images and PCA of images to files 
+    NUMBER_TO_PRINT = 20;
+    OUT_DIR = 'out/';
+    FILE_PREFIX = [num2str(numTrain), '_', num2str(numEigen), '_'];
+    reconstructTest = (projectTest / useEigenV)' + repmat(mean, 1, size(testMatrix, 2));
+    reconstructTest(reconstructTest > 255) = 255;
+    reconstructTest(reconstructTest < 0) = 0;
+    imageSize = size(testImages);
+    reconstructImages = uint8(reshape(reconstructTest, imageSize));
+    meanImage = uint8(reshape(mean, imageSize(1:3)));
+    imwrite(meanImage, [OUT_DIR, 'mean.jpg']);
+    for i = 1: NUMBER_TO_PRINT
+        imwrite(testImages(:,:,:,i), [OUT_DIR, FILE_PREFIX, 'raw_', num2str(i), '.jpg']);
+        imwrite(reconstructImages(:,:,:,i), [OUT_DIR, FILE_PREFIX, 're_', num2str(i), '.jpg']);
+    end
 end
 
